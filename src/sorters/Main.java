@@ -7,15 +7,21 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class Main {
+    private static final String RAPL_PATH = "/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj";
 
     /**
-     * Reads the current RAPL energy counter
-     * @return
-     * @throws IOException
+     * Reads the current RAPL energy counter for the CPU package.
+     * @return Accumulated energy in microjoules (µJ)
      */
-    private static long readEnergy() throws IOException {
-        // TODO
-        return 0;
+    private static long readEnergy() {
+        try {
+            // Try to read the file, trim any newline characters, and parse it as a long
+            String energyString = Files.readString(Path.of(RAPL_PATH)).trim();
+            return Long.parseLong(energyString);
+        } catch (Exception e) {
+            // If the file does not exist or cannot be read (like on WSL or Windows) return 0
+            return 0;
+        }
     }
 
     /**
