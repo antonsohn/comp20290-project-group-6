@@ -41,53 +41,121 @@ public class Main {
 
     /**
      * Reads a given CSV file containing ints to an array, and then sorts the array {@code iters} times using the given sorting algorithm.
+     * Measure the time elapsed and energy used during this process and prints the results.
      * @param sortAlgorithm sorting algorithm to be run.
      * @param filePath file path of data to be sorted
+     * @param iters the number of times that the array is sorted
      */
-    private static void runSorter(Consumer<int[]> sortAlgorithm, String filePath, int iters) throws IOException {
+    private static void testSorter(Consumer<int[]> sortAlgorithm, String filePath, int iters) throws IOException {
+        long startTime = System.nanoTime();
+        long startEnergy = readEnergy();
+
+        // Following the paper, we read the CSV once and then sort a copy of the data multiple times
         int[] arr = CSVtoArr(filePath);
         for (int i = 0; i < iters; i++) {
             int[] arrCopy = new int[arr.length];
             System.arraycopy(arr, 0, arrCopy, 0, arr.length);
             sortAlgorithm.accept(arrCopy);
         }
+
+        // Reading and printing the time elapsed and energy used
+        long endTime = System.nanoTime();
+        long endEnergy = readEnergy();
+        System.out.println(filePath);
+        System.out.println("Time elapsed: " + (endTime - startTime) + "ns");
+        System.out.println("Energy used: " + (endEnergy - startEnergy) + " µJ");
     }
 
-    // The file paths of the various CSV files to be sorted by mergesort
-    private static final List<String> mergeSortFilePaths = List.of(
-            "resources/testfile.csv",
-            "resources/testfile2.csv"
-    );
+    /**
+     * Reads a given CSV file containing ints to an array {@code iters} times.
+     * Measure the time elapsed and energy used during this process and prints the results.
+     * @param filePath file path of CSV to be read
+     * @param iters the number of times that the CSV file is read
+     */
+    private static void testCSVtoArr(String filePath, int iters) throws IOException {
+        long startTime = System.nanoTime();
+        long startEnergy = readEnergy();
 
+        int[] arr = CSVtoArr(filePath);
+
+        // Reading and printing the time elapsed and energy used
+        long endTime = System.nanoTime();
+        long endEnergy = readEnergy();
+        System.out.println(filePath);
+        System.out.println("Time elapsed: " + (endTime - startTime) + "ns");
+        System.out.println("Energy used: " + (endEnergy - startEnergy) + " µJ");
+    }
 
     public static void main(String[] args) throws IOException {
 
-        Consumer<int[]> sortAlgorithm = MergeSort::mergeSort; // The sorting algorithm we will measure
-        List<String> filePaths =  mergeSortFilePaths; // The file paths of the CSV files we will sort
+        // The range of sizes of data that we will test our sorting algorithms on
+        String[] inputSizes =  {"5K", "10K", "15K"};
 
-        for (String path : filePaths) {
+        // --------------------- Testing mege sort ---------------------
 
-            //System.out.println(Arrays.toString(CSVtoArr(path)));
+        // Testing once for each input size
+        for (String inputSize : inputSizes) {
 
-            long startTime = System.nanoTime();
-            long startEnergy = readEnergy();
+            // Worst case
+            System.out.println("Merge sort, worst case: alternating elements.");
+            testSorter(MergeSort::mergeSort, "resources/alternatingElements" + inputSize + ".csv", 30);
 
-            // --------------- Programme to be measured ---------------
+            // Best case
+            System.out.println("Merge sort, best case: sorted.");
+            testSorter(MergeSort::mergeSort, "resources/sorted" + inputSize + ".csv", 30);
 
-            runSorter(sortAlgorithm, path, 400);
+            // Random case
+            System.out.println("Merge sort, random case: randomly sorted.");
+            for (int i = 1; i <= 10; i++) {
+                testSorter(MergeSort::mergeSort, "resources/randomlySorted" + inputSize + i + ".csv", 3);
+            }
 
-            // ------------ End of programme to be measured ------------
-
-            long endTime = System.nanoTime();
-            long endEnergy = readEnergy();
-            long timeElapsed = endTime - startTime;
-            long energyUsed = endEnergy - startEnergy;
-
-            System.out.println(path);
-            System.out.println("Time elapsed: " + timeElapsed + "ns");
-            System.out.println("Energy used: " + energyUsed + " µJ");
         }
 
+        // --------------------- Testing CSV read ---------------------
+
+        // Testing once for each input size
+        for (String inputSize : inputSizes) {
+
+            // Sorted
+            System.out.println("CSV read, sorted.");
+            testCSVtoArr("resources/sorted" + inputSize + ".csv", 400);
+
+            // Reverse-sorted
+            System.out.println("CSV read, reverse-sorted.");
+            testCSVtoArr("resources/reverseSorted" + inputSize + ".csv", 400);
+
+            // Randomly sorted
+            System.out.println("CSV read, randomly sorted.");
+            for (int i = 1; i <= 10; i++) {
+                testCSVtoArr("resources/randomlySorted" + inputSize + i + ".csv", 40);
+            }
+
+            // Alternating elements
+            System.out.println("CSV read, alternating elements.");
+            testCSVtoArr("resources/alternatingElements" + inputSize + ".csv", 400);
+
+            // Evenly-partitioned
+            System.out.println("CSV read, evenly-partitioned.");
+            testCSVtoArr("resources/evenlyPartitioned" + inputSize + ".csv", 400);
+
+            // Counting worst // TODO what is this??
+            System.out.println("CSV read, counting worst.");
+            testCSVtoArr("resources/countingWorst" + inputSize + ".csv", 400);
+
+            // Randomly sorted, small k
+            System.out.println("CSV read, randomly sorted, small k.");
+            for (int i = 1; i <= 10; i++) {
+                testCSVtoArr("resources/randomlySortedSmallk" + inputSize + i + ".csv", 40);
+            }
+
+            // Randomly sorted, big k
+            System.out.println("CSV read, randomly sorted, big k.");
+            for (int i = 1; i <= 10; i++) {
+                testCSVtoArr("resources/randomlySortedBigk" + inputSize + i + ".csv", 40);
+            }
+
+        }
     }
 
 }
