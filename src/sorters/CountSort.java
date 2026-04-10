@@ -3,7 +3,7 @@ package sorters;
 import java.util.Arrays;
 
 public class CountSort {
-    public static int[] sort(int[] array){
+    public static int[] countSort(int[] array){
 
         int[] sorted = new int[array.length];
         int[] numbers = new int[Arrays.stream(array).max().getAsInt() + 1];
