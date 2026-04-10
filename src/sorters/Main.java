@@ -1,5 +1,6 @@
 package sorters;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,12 +42,13 @@ public class Main {
 
     /**
      * Reads a given CSV file containing ints to an array, and then sorts the array {@code iters} times using the given sorting algorithm.
-     * Measure the time elapsed and energy used during this process and prints the results.
+     * Measure the time elapsed and energy used during this process and returns the results.
      * @param sortAlgorithm sorting algorithm to be run.
      * @param filePath file path of data to be sorted
      * @param iters the number of times that the array is sorted
+     * @return an array containing the time elapsed in nanoseconds and the energy used in microjoules
      */
-    private static void testSorter(Consumer<int[]> sortAlgorithm, String filePath, int iters) throws IOException {
+    private static long[] testSorter(Consumer<int[]> sortAlgorithm, String filePath, int iters) throws IOException {
         long startTime = System.nanoTime();
         long startEnergy = readEnergy();
 
@@ -61,101 +63,175 @@ public class Main {
         // Reading and printing the time elapsed and energy used
         long endTime = System.nanoTime();
         long endEnergy = readEnergy();
-        System.out.println(filePath);
-        System.out.println("Time elapsed: " + (endTime - startTime) + "ns");
-        System.out.println("Energy used: " + (endEnergy - startEnergy) + " µJ");
+        return new long[]{(endTime - startTime), (endEnergy - startEnergy)};
     }
 
     /**
      * Reads a given CSV file containing ints to an array {@code iters} times.
-     * Measure the time elapsed and energy used during this process and prints the results.
+     * Measure the time elapsed and energy used during this process and returns the results.
      * @param filePath file path of CSV to be read
      * @param iters the number of times that the CSV file is read
+     * @return an array containing the time elapsed in nanoseconds and the energy used in microjoules
      */
-    private static void testCSVtoArr(String filePath, int iters) throws IOException {
+    private static long[] testCSVtoArr(String filePath, int iters) throws IOException {
         long startTime = System.nanoTime();
         long startEnergy = readEnergy();
 
-        int[] arr = CSVtoArr(filePath);
+        for (int i=0; i<iters; i++) {
+            CSVtoArr(filePath);
+        }
 
         // Reading and printing the time elapsed and energy used
         long endTime = System.nanoTime();
         long endEnergy = readEnergy();
-        System.out.println(filePath);
-        System.out.println("Time elapsed: " + (endTime - startTime) + "ns");
-        System.out.println("Energy used: " + (endEnergy - startEnergy) + " µJ");
+        return new long[]{(endTime - startTime), (endEnergy - startEnergy)};
+    }
+
+    /**
+     * Quality of life method that writes the result of a test to results.txt
+     */
+    private static void writeResults(FileWriter writer, long[] result, int iters, String inputSize) throws IOException {
+        writer.write("\n" + iters + " iterations on one file of size " + inputSize);
+        writer.write("\nTime elapsed: " + result[0] + "ns");
+        writer.write("\nEnergy used: " + result[1] + " µJ");
     }
 
     public static void main(String[] args) throws IOException {
 
+        // The output file for the results
+        FileWriter writer = new FileWriter("results.txt");
+
         // The range of sizes of data that we will test our sorting algorithms on
-        String[] inputSizes =  {"5K", "10K", "15K"};
+        String[] inputSizes =  {"Test"};
 
         // --------------------- Testing mege sort ---------------------
 
-        // Testing once for each input size
+        // Worst case
+        int iters = 30; // This is the number of times that each array is sorted after being read from a CSV
+        writer.write("Merge sort, worst case, alternating elements.");
+        // We run the test once for each specified input size
         for (String inputSize : inputSizes) {
+            // We run the test and write the results
+            long[] result = testSorter(MergeSort::mergeSort, "resources/alternatingElements" + inputSize + ".csv", iters);
+            writeResults(writer, result, iters, inputSize);
+        }
 
-            // Worst case
-            System.out.println("Merge sort, worst case: alternating elements.");
-            testSorter(MergeSort::mergeSort, "resources/alternatingElements" + inputSize + ".csv", 30);
+        // Best case
+        iters = 30;
+        writer.write("\n\nMerge sort, best case, sorted.");
+        for (String inputSize : inputSizes) {
+            long[] result = testSorter(MergeSort::mergeSort, "resources/sorted" + inputSize + ".csv", iters);
+            writeResults(writer, result, iters, inputSize);
+        }
 
-            // Best case
-            System.out.println("Merge sort, best case: sorted.");
-            testSorter(MergeSort::mergeSort, "resources/sorted" + inputSize + ".csv", 30);
-
-            // Random case
-            System.out.println("Merge sort, random case: randomly sorted.");
+        // Random case
+        iters = 3;
+        writer.write("\n\nMerge sort, random case, randomly sorted.");
+        for (String inputSize : inputSizes) {
+            writer.write("\n" + iters + " iterations each on ten files of size " + inputSize);
+            // In the random case, we have 10 randomly sorted arrays of a given size, and we are interested in the average time elapsed and average energy used over all 10 arrays
+            long totalTime = 0;
+            long totalEnergy = 0;
             for (int i = 1; i <= 10; i++) {
-                testSorter(MergeSort::mergeSort, "resources/randomlySorted" + inputSize + i + ".csv", 3);
+                long[] result = testSorter(MergeSort::mergeSort, "resources/randomlySorted" + inputSize + i + ".csv", iters);
+                totalTime += result[0];
+                totalEnergy += result[1];
             }
-
+            writer.write("\nAverage time elapsed: " + totalTime/10 + "ns");
+            writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
         }
 
         // --------------------- Testing CSV read ---------------------
 
-        // Testing once for each input size
-        for (String inputSize : inputSizes) {
+//        // Sorted
+//        iters = 400;
+//        writer.write("\n\nCSV read, sorted.");
+//        for (String inputSize : inputSizes) {
+//            long[] result = testCSVtoArr("resources/sorted" + inputSize + ".csv", iters);
+//            writeResults(writer, result, iters, inputSize);
+//        }
+//
+//        // Reverse-sorted
+//        iters = 400;
+//        writer.write("\n\nCSV read, reverse-sorted.");
+//        for (String inputSize : inputSizes) {
+//            long[] result = testCSVtoArr("resources/reverseSorted" + inputSize + ".csv", iters);
+//            writeResults(writer, result, iters, inputSize);
+//        }
+//
+//        // Randomly sorted
+//        iters = 40;
+//        writer.write("\n\nCSV read, randomly sorted.");
+//        for (String inputSize : inputSizes) {
+//            writer.write("\n" + iters + " iterations each on ten files of size " + inputSize);
+//            long totalTime = 0;
+//            long totalEnergy = 0;
+//            for (int i = 1; i <= 10; i++) {
+//                long[] result = testCSVtoArr("resources/randomlySorted" + inputSize + i + ".csv", iters);
+//                totalTime += result[0];
+//                totalEnergy += result[1];
+//            }
+//            writer.write("\nAverage time elapsed: " + totalTime/10 + "ns");
+//            writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
+//        }
+//
+//        // Alternating elements
+//        iters = 400;
+//        writer.write("\n\nCSV read, alternating elements.");
+//        for (String inputSize : inputSizes) {
+//            long[] result = testCSVtoArr("resources/alternatingElements" + inputSize + ".csv", iters);
+//            writeResults(writer, result, iters, inputSize);
+//        }
+//
+//        // Evenly-partitioned
+//        iters = 400;
+//        writer.write("\n\nCSV read, evenly-partitioned.");
+//        for (String inputSize : inputSizes) {
+//            long[] result = testCSVtoArr("resources/evenlyPartitioned" + inputSize + ".csv", iters);
+//            writeResults(writer, result, iters, inputSize);
+//        }
+//
+//        // Counting worst // TODO what is this??
+//        iters = 400;
+//        writer.write("\n\nCSV read, counting worst.");
+//        for (String inputSize : inputSizes) {
+//            long[] result = testCSVtoArr("resources/countingWorst" + inputSize + ".csv", iters);
+//            writeResults(writer, result, iters, inputSize);
+//        }
+//
+//        // Randomly sorted, small k
+//        iters = 40;
+//        writer.write("\n\nCSV read, randomly sorted, small k.");
+//        for (String inputSize : inputSizes) {
+//            writer.write("\n" + iters + " iterations each on ten files of size " + inputSize);
+//            long totalTime = 0;
+//            long totalEnergy = 0;
+//            for (int i = 1; i <= 10; i++) {
+//                long[] result = testCSVtoArr("resources/randomlySortedSmallk" + inputSize + i + ".csv", iters);
+//                totalTime += result[0];
+//                totalEnergy += result[1];
+//            }
+//            writer.write("\nAverage time elapsed: " + totalTime/10 + "ns");
+//            writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
+//        }
+//
+//        // Randomly sorted, big k
+//        iters = 40;
+//        writer.write("\n\nCSV read, randomly sorted, big k.");
+//        for (String inputSize : inputSizes) {
+//            writer.write("\n" + iters + " iterations each on ten files of size " + inputSize);
+//            long totalTime = 0;
+//            long totalEnergy = 0;
+//            for (int i = 1; i <= 10; i++) {
+//                long[] result = testCSVtoArr("resources/randomlySortedBigk" + inputSize + i + ".csv", iters);
+//                totalTime += result[0];
+//                totalEnergy += result[1];
+//            }
+//            writer.write("\nAverage time elapsed: " + totalTime/10 + "ns");
+//            writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
+//        }
+//
+        writer.close();
 
-            // Sorted
-            System.out.println("CSV read, sorted.");
-            testCSVtoArr("resources/sorted" + inputSize + ".csv", 400);
-
-            // Reverse-sorted
-            System.out.println("CSV read, reverse-sorted.");
-            testCSVtoArr("resources/reverseSorted" + inputSize + ".csv", 400);
-
-            // Randomly sorted
-            System.out.println("CSV read, randomly sorted.");
-            for (int i = 1; i <= 10; i++) {
-                testCSVtoArr("resources/randomlySorted" + inputSize + i + ".csv", 40);
-            }
-
-            // Alternating elements
-            System.out.println("CSV read, alternating elements.");
-            testCSVtoArr("resources/alternatingElements" + inputSize + ".csv", 400);
-
-            // Evenly-partitioned
-            System.out.println("CSV read, evenly-partitioned.");
-            testCSVtoArr("resources/evenlyPartitioned" + inputSize + ".csv", 400);
-
-            // Counting worst // TODO what is this??
-            System.out.println("CSV read, counting worst.");
-            testCSVtoArr("resources/countingWorst" + inputSize + ".csv", 400);
-
-            // Randomly sorted, small k
-            System.out.println("CSV read, randomly sorted, small k.");
-            for (int i = 1; i <= 10; i++) {
-                testCSVtoArr("resources/randomlySortedSmallk" + inputSize + i + ".csv", 40);
-            }
-
-            // Randomly sorted, big k
-            System.out.println("CSV read, randomly sorted, big k.");
-            for (int i = 1; i <= 10; i++) {
-                testCSVtoArr("resources/randomlySortedBigk" + inputSize + i + ".csv", 40);
-            }
-
-        }
     }
-
 }

@@ -1,6 +1,6 @@
 package sorters;
 
-public class EdvinasTest {
+public class ReadEnergyTest {
     public static void main(String[] args) {
         Main.readEnergy();
     }
