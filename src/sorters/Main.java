@@ -13,7 +13,7 @@ public class Main {
      * Reads the current RAPL energy counter for the CPU package.
      * @return Accumulated energy in microjoules (µJ)
      */
-    private static long readEnergy() {
+    public static long readEnergy() {
         try {
             // Try to read the file, trim any newline characters, and parse it as a long
             String energyString = Files.readString(Path.of(RAPL_PATH)).trim();
