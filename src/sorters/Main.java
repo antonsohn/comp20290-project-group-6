@@ -120,7 +120,7 @@ public class Main {
             // In the random case, we have 10 randomly sorted arrays of a given size, and we are interested in the average time elapsed and average energy used over all 10 arrays
             long totalTime = 0;
             long totalEnergy = 0;
-            for (int i = 1; i <= 2; i++) { // TODO: change 2 to 10
+            for (int i = 1; i <= 10; i++) {
                 long[] result;
                 if (sortAlgorithm == null) {
                     result = testCSVtoArr("resources/" + dataName + inputSize + i + ".csv", iters);
@@ -144,17 +144,17 @@ public class Main {
 
         // --------------------- Testing bubble sort ---------------------
 
-//        // Worst case
-//        writer.write("Bubble sort, worst case, reverse-sorted.");
-//        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400);
-//
-//        // Best case
-//        writer.write("\n\nBubble sort, best case, sorted.");
-//        writeResult(writer, BubbleSort::bubbleSort, "sorted", 400);
-//
-//        // Random case
-//        writer.write("\n\nBubble sort, random case, randomly sorted.");
-//        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40);
+        // Worst case
+        writer.write("Bubble sort, worst case, reverse-sorted.");
+        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400);
+
+        // Best case
+        writer.write("\n\nBubble sort, best case, sorted.");
+        writeResult(writer, BubbleSort::bubbleSort, "sorted", 400);
+
+        // Random case
+        writer.write("\n\nBubble sort, random case, randomly sorted.");
+        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40);
 
         // --------------------- Testing merge sort ---------------------
 
