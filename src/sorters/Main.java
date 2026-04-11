@@ -4,13 +4,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Main {
     private static final String RAPL_PATH = "/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj";
-    // The range of sizes of data that we will test our sorting algorithms on
-    private static final String[] inputSizes =  {"Test"};
 
     /**
      * Reads the current RAPL energy counter for the CPU package.
@@ -25,6 +23,29 @@ public class Main {
             // If the file does not exist or cannot be read (like on WSL or Windows) return 0
             return 0;
         }
+    }
+
+    /**
+     * Generates the file suffixes from 25k up to the given limit
+     * @param maxThousands Maximum number of elements in the CSV files
+     * @return An array containing all the file suffixes
+     */
+    private static ArrayList<String> getSizesUpTo(int maxThousands) {
+        // Get the correct step size
+        ArrayList<String> sizes = new ArrayList<>();
+        int size = 25;
+
+        // Generate size suffixes
+        while (size <  maxThousands) {
+            sizes.add(size + "k");
+            if (size < 100) {
+                size += 25;
+            }
+            else {
+                size += 100;
+            }
+        }
+        return sizes;
     }
 
     /**
@@ -97,9 +118,9 @@ public class Main {
      * @param iters
      * @throws IOException
      */
-    private static void writeResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters) throws IOException {
+    private static void writeResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters, ArrayList<String> sizes) throws IOException {
         // run the test once for each specified input size
-        for (String inputSize : inputSizes) {
+        for (String inputSize : sizes) {
             // run the test and write the results
             long[] result = testSorter(sortAlgorithm, "resources/" + dataName + inputSize + ".csv", iters);
             writer.write("\n" + iters + " iterations on one file of size " + inputSize);
@@ -115,8 +136,8 @@ public class Main {
      * @param dataName
      * @param iters
      */
-    private static void writeAverageResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters) throws IOException {
-        for (String inputSize : inputSizes) {
+    private static void writeAverageResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters, ArrayList<String> sizes) throws IOException {
+        for (String inputSize : sizes) {
             // In the random case, we have 10 randomly sorted arrays of a given size, and we are interested in the average time elapsed and average energy used over all 10 arrays
             long totalTime = 0;
             long totalEnergy = 0;
@@ -142,91 +163,96 @@ public class Main {
         // The output file for the results
         FileWriter writer = new FileWriter("results.txt");
 
+        // Defined limits based on the paper
+        ArrayList<String> limit200k = getSizesUpTo(200);
+        ArrayList<String> limit500k = getSizesUpTo(500);
+        ArrayList<String> limit1Mil = getSizesUpTo(1000);
+
         // --------------------- Testing bubble sort ---------------------
 
         // Worst case
         writer.write("Bubble sort, worst case, reverse-sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400);
+        // writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400, limit500k);
 
         // Best case
         writer.write("\n\nBubble sort, best case, sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "sorted", 400);
+        // writeResult(writer, BubbleSort::bubbleSort, "sorted", 400, limit500k);
 
         // Random case
         writer.write("\n\nBubble sort, random case, randomly sorted.");
-        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40);
+        // writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40, limit500k);
 
         // --------------------- Testing merge sort ---------------------
 
         // Worst case
         writer.write("\n\nMerge sort, worst case, alternating elements.");
-        writeResult(writer, MergeSort::mergeSort, "alternatingElements", 30);
+        writeResult(writer, MergeSort::mergeSort, "alternatingElements", 30, limit1Mil);
 
         // Best case
         writer.write("\n\nMerge sort, best case, sorted.");
-        writeResult(writer, MergeSort::mergeSort, "sorted", 30);
+        writeResult(writer, MergeSort::mergeSort, "sorted", 30, limit1Mil);
 
         // Random case
         writer.write("\n\nMerge sort, random case, randomly sorted.");
-        writeAverageResult(writer, MergeSort::mergeSort, "randomlySorted", 3);
+        writeAverageResult(writer, MergeSort::mergeSort, "randomlySorted", 3, limit1Mil);
 
         // --------------------- Testing quick sort ---------------------
 
         // Worst case
         writer.write("\n\nQuick sort, worst case, reverse-sorted.");
-        writeResult(writer, QuickSort::quickSort, "reverseSorted", 30);
+        writeResult(writer, QuickSort::quickSort, "reverseSorted", 30, limit200k);
 
         // Best case
         writer.write("\n\nQuick sort, best case, evenly-partitioned.");
-        writeResult(writer, QuickSort::quickSort, "evenlyPartitioned", 30);
+        writeResult(writer, QuickSort::quickSort, "evenlyPartitioned", 30, limit1Mil);
 
         // Random case
         writer.write("\n\nQuick sort, random case, randomly sorted.");
-        writeAverageResult(writer, QuickSort::quickSort, "randomlySorted", 3);
+        writeAverageResult(writer, QuickSort::quickSort, "randomlySorted", 3, limit1Mil);
 
         // --------------------- Testing counting sort ---------------------
 
         // Worst case
         writer.write("\n\nCounting sort, worst case, randomly sorted, small k.");
-        writeResult(writer, CountSort::countSort, "randomlySortedSmallk", 30);
+        writeResult(writer, CountSort::countSort, "randomlySortedSmallk", 30, limit1Mil);
 
         // Best case
         writer.write("\n\nCounting sort, best case, randomly sorted, big k.");
-        writeResult(writer, CountSort::countSort, "randomlySortedBigk", 30);
+        writeResult(writer, CountSort::countSort, "randomlySortedBigk", 30, limit1Mil);
 
         // --------------------- Testing CSV read ---------------------
 
         // Sorted
         writer.write("\n\nCSV read, sorted.");
-        writeResult(writer, null, "sorted", 400);
+        writeResult(writer, null, "sorted", 400, limit1Mil);
 
         // Reverse-sorted
         writer.write("\n\nCSV read, reverse-sorted.");
-        writeResult(writer, null, "reverseSorted", 400);
+        writeResult(writer, null, "reverseSorted", 400, limit1Mil);
 
         // Randomly sorted
         writer.write("\n\nCSV read, randomly sorted.");
-        writeAverageResult(writer, null, "randomlySorted", 40);
+        writeAverageResult(writer, null, "randomlySorted", 40, limit1Mil);
 
         // Alternating elements
         writer.write("\n\nCSV read, alternating elements.");
-        writeResult(writer, null, "alternatingElements", 400);
+        writeResult(writer, null, "alternatingElements", 400, limit1Mil);
 
         // Evenly-partitioned
         writer.write("\n\nCSV read, evenly-partitioned.");
-        writeResult(writer, null, "evenlyPartitioned", 400);
+        writeResult(writer, null, "evenlyPartitioned", 400, limit1Mil);
 
         // Counting worst // TODO what is this??
         writer.write("\n\nCSV read, counting worst.");
-        writeResult(writer, null, "countingWorst", 400);
+        writeResult(writer, null, "countingWorst", 400, limit1Mil);
 
         // Randomly sorted, small k
         writer.write("\n\nCSV read, randomly sorted, small k.");
-        writeAverageResult(writer, null, "randomlySortedSmallk", 40);
+        writeAverageResult(writer, null, "randomlySortedSmallk", 40, limit1Mil);
 
         // Randomly sorted, big k
         writer.write("\n\nCSV read, randomly sorted, big k.");
-        writeAverageResult(writer, null, "randomlySortedBigk", 40);
+        writeAverageResult(writer, null, "randomlySortedBigk", 40,  limit1Mil);
 
         writer.close();
 
