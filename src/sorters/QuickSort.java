@@ -1,116 +1,94 @@
 package sorters;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class QuickSort {
+
+    /* ---- Array Implementation ---- */
+
     // Worst case: O(n^2), Average O(nLog(n))
-    public static <T extends Comparable<? super T>> void quickSort(final T[] data, final Comparator<T> comparator) {
-        int low = 0;
-        int high = data.length - 1;
+    public static void quickSort(final int[] data) {
+        if (data == null || data.length <= 1) return;
+        quickSort(data, 0, data.length - 1);
+    }
 
-        if (low < high) {
-            // Find the partition index
-            int pi = partition(data, low, high, comparator);
+    private static void quickSort(int[] A, int p, int r) {
+        if (p < r) {
+            int q = partition(A, p, r);
 
-            // Recursively sort elements before and after partition
-            quickSortRecursive(data, low, pi - 1, comparator);
-            quickSortRecursive(data, pi + 1, high, comparator);
+            quickSort(A, p, q - 1);
+            quickSort(A, q + 1, r);
         }
     }
 
-    private static <T extends Comparable<? super T>> void quickSortRecursive(T[] arr, int low, int high, Comparator<T> comparator) {
-        if (low < high) {
-            // Find the partition index
-            int pi = partition(arr, low, high, comparator);
+    private static int partition(int[] A, int p, int r) {
+        int pivot = A[r];
+        int i = (p - 1);
 
-            // Recursively sort elements before and after partition
-            quickSortRecursive(arr, low, pi - 1, comparator);
-            quickSortRecursive(arr, pi + 1, high, comparator);
-        }
-    }
-
-    private static <T extends Comparable<? super T>> int partition(T[] arr, int low, int high, Comparator<T> comparator) {
-        T pivot = arr[high];
-        int i = (low - 1);
-
-        for (int j = low; j < high; j++) {
-            if (comparator.compare(arr[j], pivot) <= 0) {
+        for (int j = p; j < r; j++) {
+            if (A[j] <= pivot) {
                 i++;
 
-                T temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+                int temp = A[i];
+                A[i] = A[j];
+                A[j] = temp;
             }
         }
 
-        // Swap the pivot element with the element at i+1
-        T temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
+        int temp = A[i + 1];
+        A[i + 1] = A[r];
+        A[r] = temp;
 
         return i + 1;
     }
 
+    /* ---- List implementation ---- */
+
     // Average: O(nLog(n)), Worst case: O(n^2)
-    public static <T extends Comparable<? super T>> void quickSort(final List<T> data, final Comparator<T> comparator) {
-        int low = 0;
-        int high = data.size() - 1;
+    public static void quickSort(final List<Integer> data) {
+        if (data == null || data.size() <= 1) return;
+        quickSort(data, 0, data.size() - 1);
+    }
 
-        if (low < high) {
-            // Find the partition index
-            int pi = partition(data, low, high, comparator);
-
-            // Recursively sort elements before and after partition
-            quickSortRecursive(data, low, pi - 1, comparator);
-            quickSortRecursive(data, pi + 1, high, comparator);
+    private static void quickSort(List<Integer> A, int p, int r) {
+        if (p < r) {
+            int q = partition(A, p, r);
+            quickSort(A, p, q - 1);
+            quickSort(A, q + 1, r);
         }
     }
 
-    private static <T extends Comparable<? super T>> void quickSortRecursive(List<T> list, int low, int high, Comparator<T> comparator) {
-        if (low < high) {
-            // Find the partition index
-            int pi = partition(list, low, high, comparator);
+    private static int partition(List<Integer> A, int p, int r) {
+        int pivot = A.get(r);
+        int i = (p - 1);
 
-            // Recursively sort elements before and after partition
-            quickSortRecursive(list, low, pi - 1, comparator);
-            quickSortRecursive(list, pi + 1, high, comparator);
-        }
-    }
-
-    private static <T extends Comparable<? super T>> int partition(List<T> list, int low, int high, Comparator<T> comparator) {
-        T pivot = list.get(high);
-        int i = (low - 1);
-
-        for (int j = low; j < high; j++) {
-            // Check whether current element is smaller than the pivot
-            if (comparator.compare(list.get(j), pivot) <= 0) {
+        for (int j = p; j < r; j++) {
+            if (A.get(j) <= pivot) {
                 i++;
 
-                // Put current element in sorted spot
-                T temp = list.get(i);
-                list.set(i, list.get(j));
-                list.set(j, temp);
+                int temp = A.get(i);
+                A.set(i, A.get(j));
+                A.set(j, temp);
             }
         }
 
-        // Swap the pivot element with the element at i+1
-        T temp = list.get(i + 1);
-        list.set(i + 1, list.get(high));
-        list.set(high, temp);
+        int temp = A.get(i + 1);
+        A.set(i + 1, A.get(r));
+        A.set(r, temp);
 
         return i + 1;
     }
 
     // Testing
     public static void main(String[] args) {
-        Integer[] arr = new Integer[] {1, 234, 5, 1,21, 56, 82, 609, 58, 2, 98};
-        List<Integer> list = Arrays.asList(arr);
+        int[] arr = new int[] {1, 234, 5, 1,21, 56, 82, 609, 58, 2, 98};
+        List<Integer> list = new ArrayList<>(Arrays.stream(arr).boxed().toList());
 
 
         // Test Array MergeSort
-        quickSort(arr, Comparator.naturalOrder());
+        quickSort(arr);
         System.out.print("QuickSort Array: [ ");
         for (Integer integer : arr) {
             System.out.print(integer + " ");
@@ -118,7 +96,7 @@ public class QuickSort {
         System.out.println("]");
 
         // Test List MergeSort
-        quickSort(list, Comparator.naturalOrder());
+        quickSort(list);
         System.out.print("QuickSort List: ( ");
         for (Integer integer : list) {
             System.out.print(integer + " ");
