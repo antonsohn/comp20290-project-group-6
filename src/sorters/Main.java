@@ -160,15 +160,15 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        // The output file for the results
-        FileWriter writer = new FileWriter("results.txt");
-
         // Defined limits based on the paper
         ArrayList<String> limit200k = getSizesUpTo(200);
         ArrayList<String> limit500k = getSizesUpTo(500);
         ArrayList<String> limit1Mil = getSizesUpTo(1000);
 
         // --------------------- Testing bubble sort ---------------------
+
+        // The output file for bubble sort results
+        FileWriter writer = new FileWriter("bubbleSortResults.txt");
 
         // Worst case
         writer.write("Bubble sort, worst case, reverse-sorted.");
@@ -182,10 +182,16 @@ public class Main {
         writer.write("\n\nBubble sort, random case, randomly sorted.");
         // writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40, limit500k);
 
+        writer.close();
+        System.out.println("Finished bubble sort test");
+
         // --------------------- Testing merge sort ---------------------
 
+        // The output file for merge sort results
+        writer = new FileWriter("mergeSortResults.txt");
+
         // Worst case
-        writer.write("\n\nMerge sort, worst case, alternating elements.");
+        writer.write("Merge sort, worst case, alternating elements.");
         writeResult(writer, MergeSort::mergeSort, "alternatingElements", 30, limit1Mil);
 
         // Best case
@@ -196,10 +202,16 @@ public class Main {
         writer.write("\n\nMerge sort, random case, randomly sorted.");
         writeAverageResult(writer, MergeSort::mergeSort, "randomlySorted", 3, limit1Mil);
 
+        writer.close();
+        System.out.println("Finished merge sort test");
+
         // --------------------- Testing quick sort ---------------------
 
+        // The output file for quick sort results
+        writer = new FileWriter("quickSortResults.txt");
+
         // Worst case
-        writer.write("\n\nQuick sort, worst case, reverse-sorted.");
+        writer.write("Quick sort, worst case, reverse-sorted.");
         writeResult(writer, QuickSort::quickSort, "reverseSorted", 30, limit200k);
 
         // Best case
@@ -210,20 +222,32 @@ public class Main {
         writer.write("\n\nQuick sort, random case, randomly sorted.");
         writeAverageResult(writer, QuickSort::quickSort, "randomlySorted", 3, limit1Mil);
 
+        writer.close();
+        System.out.println("Finished quick sort test");
+
         // --------------------- Testing counting sort ---------------------
 
+        // The output file for counting sort results
+        writer = new FileWriter("countingSortResults.txt");
+
         // Worst case
-        writer.write("\n\nCounting sort, worst case, randomly sorted, small k.");
+        writer.write("Counting sort, worst case, randomly sorted, small k.");
         writeResult(writer, CountSort::countSort, "randomlySortedSmallk", 30, limit1Mil);
 
         // Best case
         writer.write("\n\nCounting sort, best case, randomly sorted, big k.");
         writeResult(writer, CountSort::countSort, "randomlySortedBigk", 30, limit1Mil);
 
+        writer.close();
+        System.out.println("Finished counting sort test");
+
         // --------------------- Testing CSV read ---------------------
 
+        // The output file for CSV read results
+        writer = new FileWriter("CSVtoArrResults.txt");
+
         // Sorted
-        writer.write("\n\nCSV read, sorted.");
+        writer.write("CSV read, sorted.");
         writeResult(writer, null, "sorted", 400, limit1Mil);
 
         // Reverse-sorted
@@ -242,7 +266,7 @@ public class Main {
         writer.write("\n\nCSV read, evenly-partitioned.");
         writeResult(writer, null, "evenlyPartitioned", 400, limit1Mil);
 
-        // Counting worst // TODO what is this??
+        // Counting worst
         writer.write("\n\nCSV read, counting worst.");
         writeResult(writer, null, "countingWorst", 400, limit1Mil);
 
@@ -255,6 +279,7 @@ public class Main {
         writeAverageResult(writer, null, "randomlySortedBigk", 40,  limit1Mil);
 
         writer.close();
+        System.out.println("Finished CSVtoArr test");
 
     }
 }
