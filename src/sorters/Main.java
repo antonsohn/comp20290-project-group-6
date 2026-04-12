@@ -124,7 +124,7 @@ public class Main {
             // run the test and write the results
             long[] result = testSorter(sortAlgorithm, "resources/" + dataName + inputSize + ".csv", iters);
             writer.write("\n" + iters + " iterations on one file of size " + inputSize);
-            writer.write("\nTime elapsed: " + result[0] + "ns");
+            writer.write("\nTime elapsed: " + result[0] + " ns");
             writer.write("\nEnergy used: " + result[1] + " µJ");
         }
     }
@@ -153,7 +153,7 @@ public class Main {
                 totalEnergy += result[1];
             }
             writer.write("\n" + iters + " iterations each on ten files of size " + inputSize);
-            writer.write("\nAverage time elapsed: " + totalTime/10 + "ns");
+            writer.write("\nAverage time elapsed: " + totalTime/10 + " ns");
             writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
         }
     }
