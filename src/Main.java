@@ -1,4 +1,6 @@
-package sorters;
+import sorters.CountSort;
+import sorters.MergeSort;
+import sorters.QuickSort;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -122,7 +124,13 @@ public class Main {
         // run the test once for each specified input size
         for (String inputSize : sizes) {
             // run the test and write the results
-            long[] result = testSorter(sortAlgorithm, "resources/" + dataName + inputSize + ".csv", iters);
+            long[] result;
+            if (sortAlgorithm == null) {
+                result = testCSVtoArr("resources/" + dataName + inputSize + ".csv", iters);
+            }
+            else {
+                result = testSorter(sortAlgorithm, "resources/" + dataName + inputSize + ".csv", iters);
+            }
             writer.write("\n" + iters + " iterations on one file of size " + inputSize);
             writer.write("\nTime elapsed: " + result[0] + " ns");
             writer.write("\nEnergy used: " + result[1] + " µJ");
