@@ -1,3 +1,5 @@
+package app;
+
 import sorters.CountSort;
 import sorters.MergeSort;
 import sorters.QuickSort;
