@@ -1,5 +1,6 @@
 package app;
 
+import sorters.BubbleSort;
 import sorters.CountSort;
 import sorters.MergeSort;
 import sorters.QuickSort;
@@ -171,9 +172,14 @@ public class Main {
     public static void main(String[] args) throws IOException {
 
         // Defined limits based on the paper
-        ArrayList<String> limit200k = getSizesUpTo(200);
         ArrayList<String> limit500k = getSizesUpTo(500);
         ArrayList<String> limit1Mil = getSizesUpTo(1000);
+
+        // Generate the QuickSort worst case file sizes
+        ArrayList<String> limit200k = new ArrayList<>();
+        for (int size = 25; size <  200; size += 25) {
+            limit200k.add(size + "k");
+        }
 
         // --------------------- Testing bubble sort ---------------------
 
@@ -182,15 +188,15 @@ public class Main {
 
         // Worst case
         writer.write("Bubble sort, worst case, reverse-sorted.");
-        // writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400, limit500k);
+        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400, limit500k);
 
         // Best case
         writer.write("\n\nBubble sort, best case, sorted.");
-        // writeResult(writer, BubbleSort::bubbleSort, "sorted", 400, limit500k);
+        writeResult(writer, BubbleSort::bubbleSort, "sorted", 400, limit500k);
 
         // Random case
         writer.write("\n\nBubble sort, random case, randomly sorted.");
-        // writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40, limit500k);
+        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40, limit500k);
 
         writer.close();
         System.out.println("Finished bubble sort test");

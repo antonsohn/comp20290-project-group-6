@@ -41,6 +41,15 @@ public class CSVGenerator {
                     size += 100_000;
                 }
             }
+
+            // Generate QuickSort worst case intervals
+            System.out.println("Generating files for QuickSort worst case");
+            for (size = 125_000; size < 200_000; size += 25_000) {
+                String sizeName = (size / 1000) + "k";
+
+                writeCSV(generateReverseSorted(size), "reverseSorted" + sizeName + ".csv");
+            }
+
             System.out.println("All CSV files generated successfully!");
 
         } catch (IOException e) {
