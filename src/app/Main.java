@@ -137,6 +137,7 @@ public class Main {
             writer.write("\n" + iters + " iterations on one file of size " + inputSize);
             writer.write("\nTime elapsed: " + result[0] + " ns");
             writer.write("\nEnergy used: " + result[1] + " µJ");
+            System.out.println(inputSize);
         }
     }
 
@@ -181,30 +182,10 @@ public class Main {
             limit200k.add(size + "k");
         }
 
-        // --------------------- Testing bubble sort ---------------------
-
-        // The output file for bubble sort results
-        FileWriter writer = new FileWriter("bubbleSortResults.txt");
-
-        // Worst case
-        writer.write("Bubble sort, worst case, reverse-sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 400, limit500k);
-
-        // Best case
-        writer.write("\n\nBubble sort, best case, sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "sorted", 400, limit500k);
-
-        // Random case
-        writer.write("\n\nBubble sort, random case, randomly sorted.");
-        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 40, limit500k);
-
-        writer.close();
-        System.out.println("Finished bubble sort test");
-
         // --------------------- Testing merge sort ---------------------
 
         // The output file for merge sort results
-        writer = new FileWriter("mergeSortResults.txt");
+        FileWriter writer = new FileWriter("mergeSortResults.txt");
 
         // Worst case
         writer.write("Merge sort, worst case, alternating elements.");
@@ -220,6 +201,26 @@ public class Main {
 
         writer.close();
         System.out.println("Finished merge sort test");
+
+        // --------------------- Testing bubble sort ---------------------
+
+        // The output file for bubble sort results
+        writer = new FileWriter("bubbleSortResults.txt");
+
+        // Worst case
+        writer.write("Bubble sort, worst case, reverse-sorted.");
+        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 30, limit200k);
+
+        // Best case
+        writer.write("\n\nBubble sort, best case, sorted.");
+        writeResult(writer, BubbleSort::bubbleSort, "sorted", 30, limit500k);
+
+        // Random case
+        writer.write("\n\nBubble sort, random case, randomly sorted.");
+        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 3, limit500k);
+
+        writer.close();
+        System.out.println("Finished bubble sort test");
 
         // --------------------- Testing quick sort ---------------------
 
