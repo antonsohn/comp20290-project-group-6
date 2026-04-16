@@ -41,7 +41,7 @@ public class Main {
         int size = 25;
 
         // Generate size suffixes
-        while (size <  maxThousands) {
+        while (size <=  maxThousands) {
             sizes.add(size + "k");
             if (size < 100) {
                 size += 25;
