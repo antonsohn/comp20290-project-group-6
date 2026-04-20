@@ -31,29 +31,6 @@ public class Main {
     }
 
     /**
-     * Helper method which generates the file suffixes from 25k up to the given limit
-     * @param maxThousands Maximum number of elements in the CSV files
-     * @return An array containing all the file suffixes
-     */
-    private static ArrayList<String> getSizesUpTo(int maxThousands) {
-        // Get the correct step size
-        ArrayList<String> sizes = new ArrayList<>();
-        int size = 25;
-
-        // Generate size suffixes
-        while (size <=  maxThousands) {
-            sizes.add(size + "k");
-            if (size < 100) {
-                size += 25;
-            }
-            else {
-                size += 100;
-            }
-        }
-        return sizes;
-    }
-
-    /**
      * Reads a CSV file containing ints to an array.
      * @return array of ints.
      */
@@ -171,6 +148,29 @@ public class Main {
             writer.write("\nAverage time elapsed: " + totalTime/10 + " ns");
             writer.write("\nAverage energy used: " + totalEnergy/10 + " µJ");
         }
+    }
+
+    /**
+     * Helper method which generates the file suffixes from 25k up to the given limit
+     * @param maxThousands Maximum number of elements in the CSV files
+     * @return An array containing all the file suffixes
+     */
+    private static ArrayList<String> getSizesUpTo(int maxThousands) {
+        // Get the correct step size
+        ArrayList<String> sizes = new ArrayList<>();
+        int size = 25;
+
+        // Generate size suffixes
+        while (size <=  maxThousands) {
+            sizes.add(size + "k");
+            if (size < 100) {
+                size += 25;
+            }
+            else {
+                size += 100;
+            }
+        }
+        return sizes;
     }
 
     public static void main(String[] args) throws IOException {
