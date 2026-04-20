@@ -31,7 +31,7 @@ public class Main {
     }
 
     /**
-     * Generates the file suffixes from 25k up to the given limit
+     * Helper method which generates the file suffixes from 25k up to the given limit
      * @param maxThousands Maximum number of elements in the CSV files
      * @return An array containing all the file suffixes
      */
@@ -72,7 +72,7 @@ public class Main {
      * Reads a given CSV file containing ints to an array, and then sorts the array {@code iters} times using the given sorting algorithm.
      * Measure the time elapsed and energy used during this process and returns the results.
      * @param sortAlgorithm sorting algorithm to be run.
-     * @param filePath file path of data to be sorted
+     * @param filePath file path of the CSV file to be sorted
      * @param iters the number of times that the array is sorted
      * @return an array containing the time elapsed in nanoseconds and the energy used in microjoules
      */
@@ -116,12 +116,13 @@ public class Main {
     }
 
     /**
-     *
-     * @param writer
-     * @param sortAlgorithm
-     * @param dataName
-     * @param iters
-     * @throws IOException
+     * This function calls testSorter on a specified sorting algorithm using a specified type of non-random data (e.g. reverse-sorted) once for each specified input size.
+     * If null is passed in place of a sorting algorithm, testCSVtoArr is called instead of testSorter.
+     * The results are written to the file writer passed to the function.
+     * The function relies on the sorting data to be in the resources directory and to follow the naming convention: dataName + inputSize + ".csv"
+     * @param sortAlgorithm The algorithm to be tested, or null if the user wishes to test CSVtoArr
+     * @param dataName A string which specifies that type of input data: e.g. "reverseSorted" or "evenlyPartitioned"
+     * @param iters The number of iterations that will be performed in the test
      */
     private static void writeResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters, ArrayList<String> sizes) throws IOException {
         // run the test once for each specified input size
@@ -142,11 +143,13 @@ public class Main {
     }
 
     /**
-     *
-     * @param writer
-     * @param sortAlgorithm
-     * @param dataName
-     * @param iters
+     * This function is an adaptation of writeResult for randomly sorted data.
+     * For each input size, we have generated ten distinct randomly sorted csv files.
+     * To reduce variance in our results, we find the average measurements obtained over the tests on all ten of these files.
+     * The average results are written to file writer passed to the function.
+     * @param sortAlgorithm The algorithm to be tested, or null if the user wishes to test CSVtoArr
+     * @param dataName A string which specifies that type of input data: e.g. "randomlySorted"
+     * @param iters The number of iterations that will be performed in the test
      */
     private static void writeAverageResult (FileWriter writer, Consumer<int[]> sortAlgorithm, String dataName, int iters, ArrayList<String> sizes) throws IOException {
         for (String inputSize : sizes) {
@@ -209,15 +212,15 @@ public class Main {
 
         // Worst case
         writer.write("Bubble sort, worst case, reverse-sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 30, limit200k);
+        writeResult(writer, BubbleSort::bubbleSort, "reverseSorted", 30, limit200k); // This differs from the paper
 
         // Best case
         writer.write("\n\nBubble sort, best case, sorted.");
-        writeResult(writer, BubbleSort::bubbleSort, "sorted", 30, limit500k);
+        writeResult(writer, BubbleSort::bubbleSort, "sorted", 30, limit500k); // This differs from the paper
 
         // Random case
         writer.write("\n\nBubble sort, random case, randomly sorted.");
-        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 3, limit500k);
+        writeAverageResult(writer, BubbleSort::bubbleSort, "randomlySorted", 3, limit500k); // This differs from the paper
 
         writer.close();
         System.out.println("Finished bubble sort test");
